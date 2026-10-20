@@ -28,24 +28,24 @@ Le plan d'adressage complet est présenté dans la page [Architecture](./0-archi
  
 **Paris**
  
-| Interface | PRS-FW01 (Master) | PRS-FW02 (Backup) | VIP CARP |
-|---|---|---|---|
-| WAN | `192.168.254.19` | `192.168.254.29` | `192.168.254.9` |
-| LAN | `10.9.75.2` | `10.9.75.3` | `10.9.75.1` |
-| DMZ | `10.9.175.2` | `10.9.175.3` | `10.9.175.1` |
-| MGMT | `10.9.99.2` | `10.9.99.3` | `10.9.99.1` |
-| pfSync | `10.9.250.1` | `10.9.250.2` | - |
- 
+| Interface  | PRS-FW01 (Master) | PRS-FW02 (Backup) | VIP CARP        | 
+|------------|-------------------|-------------------|-----------------|
+| WAN        | `192.168.254.19`  | `192.168.254.29`  | `192.168.254.9` |
+| LAN        | `10.9.75.2`       | `10.9.75.3`       | `10.9.75.1`     |
+| DMZ        | `10.9.175.2`      | `10.9.175.3`      | `10.9.175.1`    |
+| MGMT       | `10.9.99.2`       | `10.9.99.3`       | `10.9.99.1`     |
+| pfSync     | `10.9.250.1`      | `10.9.250.2`      |                 |
+
 **Lyon**
  
-| Interface | LY-FW01 (Master) | LY-FW02 (Backup) | VIP CARP |
-|---|---|---|---|
-| WAN | `192.168.254.49` | `192.168.254.59` | `192.168.254.39` |
-| LAN | `10.9.69.2` | `10.9.69.3` | `10.9.69.1` |
-| pfSync | `10.9.250.5` | `10.9.250.6` | - |
- 
-La passerelle Internet de la maquette est `192.168.254.254`. Les VIP sont les seules adresses utilisées comme passerelles, dans les configurations VPN et dans les règles NAT : les adresses physiques des pare-feux n'y apparaissent jamais.
- 
+| Interface  | LY-FW01 (Master)  | LY-FW02 (Backup)  | VIP CARP        | 
+|------------|-------------------|-------------------|-----------------|
+| WAN        | `192.168.254.19`  | `192.168.254.29`  | `192.168.254.9` |
+| LAN        | `10.9.69.2`       | `10.9.69.3`       | `10.9.69.1`     |
+| pfSync     | `10.9.250.5`      | `10.9.250.6`      |                 |
+
+La passerelle Internet de la maquette est `192.168.254.254`. Seules les VIP sont utilisées comme passerelles.
+
 ---
  
 ## Haute disponibilité pfSense
@@ -56,9 +56,10 @@ La haute disponibilité repose sur trois mécanismes complémentaires :
 - **pfSync** synchronise en temps réel la table des états de connexion entre les deux nœuds d'un même site. Les sessions ouvertes ne sont donc pas coupées lors d'une bascule.
 - **XML-RPC** réplique la configuration (règles, alias, VIP) du Master vers le Backup. Les deux nœuds restent ainsi identiques sans intervention manuelle.
 Deux paires de pare-feux sont déployées, indépendantes l'une de l'autre :
- 
-**Paris** : PRS-FW01 (Master) et PRS-FW02 (Backup) ;
-**Lyon** : LY-FW01 (Master) et LY-FW02 (Backup).
+
+Deux paires de pare-feu sont déployées de manière indépendante :
+- **Paris** : PRS-FW01 (Master) et PRS-FW02 (Backup).
+- **Lyon** : LY-FW01 (Master) et LY-FW02 (Backup).
 
 Chaque site dispose ainsi de sa propre redondance, et la perte d'un site n'affecte pas la redondance de l'autre.
  
@@ -68,34 +69,37 @@ Toutes les interfaces des pare-feux de Paris et de Lyon disposent d'une VIP de t
  
 **PRS-FW01**
  
-![Statut CARP du cluster pfSense de Paris, nœud PRS-FW01 en MASTER](images/reseau/01-PRS-FW01-Status-CARP.png)
+![Statut CARP du cluster pfSense de Paris, nœud PRS-FW01 en MASTER](../images/reseau/01-PRS-FW01-Status-CARP.png)
  
 **PRS-FW02**
  
-![Statut CARP du cluster pfSense de Paris, nœud PRS-FW02 en BACKUP](images/reseau/02-PRS-FW02-Status-CARP.png)
+![Statut CARP du cluster pfSense de Paris, nœud PRS-FW02 en BACKUP](../images/reseau/02-PRS-FW02-Status-CARP.png)
  
 **LY-FW01**
  
-![Statut CARP du cluster pfSense de Lyon, nœud LY-FW01 en MASTER](images/reseau/03-LY-FW01-Status-CARP.png)
+![Statut CARP du cluster pfSense de Lyon, nœud LY-FW01 en MASTER](../images/reseau/03-LY-FW01-Status-CARP.png)
  
 **LY-FW02**
  
-![Statut CARP du cluster pfSense de Lyon, nœud LY-FW02 en BACKUP](images/reseau/04-LY-FW02-Status-CARP.png)
+![Statut CARP du cluster pfSense de Lyon, nœud LY-FW02 en BACKUP](../images/reseau/04-LY-FW02-Status-CARP.png)
  
 ### Synchronisation sur une interface dédiée
  
-La synchronisation passe par une interface dédiée, nommée **pfSync**. Chaque paire dispose de son propre sous-réseau /30 : `10.9.250.0/30` à Paris et `10.9.250.4/30` à Lyon. Ce trafic, isolé des interfaces de production, ne les charge pas, et l'état des deux nœuds reste vérifié de façon fiable et rapide.
+La synchronisation passe par une interface dédiée, nommée **pfSync**. 
+Chaque paire dispose de son propre sous-réseau /30 : `10.9.250.0/30` à Paris et `10.9.250.4/30` à Lyon. 
+Ce trafic, isolé des interfaces de production, ne les charge pas, et l'état des deux nœuds reste vérifié de façon fiable et rapide.
  
-![Configuration de la haute disponibilité sur l'interface dédiée pfSync](images/reseau/05-Configuration-HA-pfSync.png)
+![Configuration de la haute disponibilité sur l'interface dédiée pfSync](../images/reseau/05-Configuration-HA-pfSync.png)
  
 Une règle autorise les flux de synchronisation entre les deux nœuds du cluster :
  
-![Règle de pare-feu sur l'interface pfSync](images/reseau/06-Configuration-Regle-pfSync.png)
+![Règle de pare-feu sur l'interface pfSync](../images/reseau/06-Configuration-Regle-pfSync.png)
  
 Cette règle n'impose volontairement aucune restriction de port ni de protocole. Le sous-réseau pfSync est un lien point à point isolé, qui ne relie que les deux nœuds du cluster. Seuls deux trafics y circulent :
  
 - **pfSync** (protocole IP 240), pour la synchronisation des états ;
 - **XML-RPC** (HTTPS), pour la synchronisation de la configuration.
+
 ### Tests et validation de la haute disponibilité
  
 Ce test vérifie le mécanisme CARP entre **PRS-FW01** (Master) et **PRS-FW02** (Backup). Il contrôle deux points : les VIP basculent correctement, et le pare-feu secondaire prend bien le relais.
@@ -107,37 +111,36 @@ La bascule est déclenchée volontairement en activant le **mode maintenance per
 Une fois le mode activé, les statuts changent :
  
 - **PRS-FW01** passe en **BACKUP** ;
+
+![Test CARP - changement de statut de PRS-FW01](../images/reseau/07-Test-Bacule-CARP-Status-FW01.png)
+ 
 - **PRS-FW02** passe en **MASTER** et reprend l'ensemble des VIP.
-**PRS-FW01**
  
-![Test CARP - changement de statut de PRS-FW01](images/reseau/07-Test-Bacule-CARP-Status-FW01.png)
- 
-**PRS-FW02**
- 
-![Test CARP - changement de statut de PRS-FW02](images/reseau/08-Test-Bacule-CARP-Status-FW02.png)
+![Test CARP - changement de statut de PRS-FW02](../images/reseau/08-Test-Bacule-CARP-Status-FW02.png)
  
 #### Vérification dans les journaux
  
 Les journaux système des deux pare-feux enregistrent les transitions d'état CARP (`CARP state`). Ils confirment que la bascule a touché toutes les interfaces concernées, et pas seulement une partie d'entre elles.
  
-![Test CARP - journaux de PRS-FW01](images/reseau/09-Test-Bascule-CARP-Logs.png)
+![Test CARP - journaux de PRS-FW01](../images/reseau/09-Test-Bascule-CARP-Logs.png)
  
 #### Continuité du trafic
  
 Un `ping` continu tourne pendant toute la bascule, d'un poste du LAN vers la passerelle VIP. Il ne perd aucun paquet : la reprise de la VIP est transparente pour les postes.
  
-<!-- [IMAGE] Ping continu pendant la bascule, 0 % de perte (images/reseau/10b-Test-Bascule-Ping-Continu.png) - figure 13 du rapport -->
+![Ping continu pendant la bascule, 0 % de perte](../images/reseau/10b-Test-Bascule-Ping-Continu.png) 
+
  
 #### Retour à l'état nominal
- 
-On désactive ensuite le mode maintenance sur PRS-FW01. Le pare-feu retrouve sa priorité initiale et redevient **MASTER**, tandis que PRS-FW02 repasse en **BACKUP**. La bascule fonctionne donc aussi dans l'autre sens, et l'architecture revient à son état d'origine.
- 
-![Test CARP - retour de PRS-FW01 en MASTER](images/reseau/10-Test-Bascule-Reprise-FW1.png)
+
+Le mode maintenance est ensuite désactivé sur PRS-FW01. Celui-ci retrouve sa priorité initiale et reprend le rôle de **MASTER**, tandis que PRS-FW02 repasse en **BACKUP**. La bascule inverse fonctionne donc également, et l'architecture revient à son état d'origine.
+
+![Test CARP - retour de PRS-FW01 en MASTER](../images/reseau/10-Test-Bascule-Reprise-FW1.png)
  
 #### Bilan
  
 La bascule fonctionne dans les deux sens, sans intervention manuelle et sans perte de paquet côté postes. La défaillance d'un pare-feu n'interrompt donc ni le filtrage ni le routage du site.
- 
+
 ---
  
 ## Interconnexion VPN IPsec
@@ -146,10 +149,11 @@ Un tunnel IPsec chiffré relie les pfSense des deux sites. Le protocole IKEv2 a 
  
 Comme chaque site est en haute disponibilité, le tunnel est établi entre les **VIP WAN** des deux paires, et non entre les adresses physiques. Après une bascule, le nouveau Master renégocie donc le tunnel automatiquement.
  
-| Site | IP WAN (VIP) | Réseaux locaux annoncés |
-|---|---|---|
-| Paris | `192.168.254.9` | `10.9.75.0/24` (LAN), `10.9.99.0/24` (MGMT) |
-| Lyon | `192.168.254.39` | `10.9.69.0/24` (LAN) |
+| Site  | IP WAN (VIP)   | Réseau local         |
+|-------|----------------|----------------------|
+| Paris | 192.168.254.9  | 10.9.75.0/24 (LAN)   |
+| Paris | 192.168.254.9  | 10.9.99.0/24 (MGMT)  |
+| Lyon  | 192.168.254.39 | 10.9.69.0/24 (LAN)   |
  
 ### Création de la CA et des certificats
  
@@ -158,18 +162,20 @@ L'authentification par certificats a été préférée à une clé pré-partagé
 - elle évite de partager un secret statique entre les sites ;
 - elle permet de révoquer individuellement le certificat d'un pare-feu compromis ;
 - elle suit les recommandations de l'ANSSI pour les liaisons site à site.
+
 Une autorité de certification (CA) dédiée au VPN, `Freemotion-CA-VPN`, est créée sur le pare-feu de Paris. Elle émet les certificats d'authentification des deux sites.
  
-![Création de la CA dédiée au VPN](images/reseau/11-Configuration-CA-VPN.png)
+![Création de la CA dédiée au VPN](../images/reseau/11-Configuration-CA-VPN.png)
  
 Un certificat signé par cette CA est ensuite généré pour chaque site. Chaque pare-feu dispose ainsi de sa propre identité cryptographique.
  
-![Certificats VPN de Paris et de Lyon](images/reseau/12-Configuration-Certificats-VPN.png)
+![Certificats VPN de Paris et de Lyon](../images/reseau/12-Configuration-Certificats-VPN.png)
  
 Enfin, deux éléments sont exportés depuis Paris puis importés sur le cluster de Lyon :
  
 - le certificat de la CA, qui permet à chaque site de valider le certificat présenté par l'autre ;
 - le certificat de Lyon **avec sa clé privée**, qui permet à Lyon de prouver son identité.
+
 C'est ce qui rend possible l'authentification mutuelle d'IKEv2.
  
 ### Création du tunnel inter-site
@@ -178,23 +184,23 @@ Une **phase 1** (IKEv2) est créée entre les VIP WAN des deux sites. Ses param�
  
 <!-- À VÉRIFIER dans pfSense : SHA-512 et DPD 10 s (valeurs reprises du tableau de risques du rapport). -->
  
-| Paramètre | Valeur | Justification |
-|---|---|---|
-| Version | IKEv2 | Négociation plus robuste et plus rapide qu'IKEv1 |
-| Authentification | Certificats (`Freemotion-CA-VPN`) | Pas de secret statique partagé, révocation possible site par site |
-| Chiffrement | AES-256-GCM | Chiffrement authentifié, recommandé par l'ANSSI |
-| Intégrité / PRF | SHA-512 | Fonction de hachage robuste |
+| Paramètre             | Valeur | Justification |
+|-----------------------|--------|---|
+| Version               | IKEv2 | Négociation plus robuste et plus rapide qu'IKEv1 |
+| Authentification      | Certificats (`Freemotion-CA-VPN`) | Pas de secret statique partagé, révocation possible site par site |
+| Chiffrement           | AES-256-GCM | Chiffrement authentifié, recommandé par l'ANSSI |
+| Intégrité / PRF       | SHA-512 | Fonction de hachage robuste |
 | Groupe Diffie-Hellman | 14 (2048 bits) | Échange de clés de niveau suffisant |
-| Dead Peer Detection | 10 s | Perte du pair détectée rapidement, utile lors d'une bascule CARP |
+| Dead Peer Detection   | 10 s | Perte du pair détectée rapidement, utile lors d'une bascule CARP |
  
 Deux **phases 2** (ESP, AES-256-GCM, PFS groupe 14) définissent ensuite les réseaux autorisés à traverser le tunnel :
  
-| Phase 2 | Réseau Paris | Réseau Lyon | Usage |
-|---|---|---|---|
-| `VPN-Lyon-LAN` | `10.9.75.0/24` | `10.9.69.0/24` | Accès de Lyon aux contrôleurs de domaine et aux services métiers de Paris |
+| Phase 2         | Réseau Paris   | Réseau Lyon    | Usage |
+|-----------------|----------------|----------------|-------|
+| `VPN-Lyon-LAN`  | `10.9.75.0/24` | `10.9.69.0/24` | Accès de Lyon aux contrôleurs de domaine et aux services métiers de Paris |
 | `VPN-Lyon-MGMT` | `10.9.99.0/24` | `10.9.69.0/24` | Supervision des machines et des pare-feux de Lyon par Zabbix et Wazuh |
  
-![Configuration du tunnel VPN](images/reseau/13-Configuration-Tunnel-VPN.png)
+![Configuration du tunnel VPN](../images/reseau/13-Configuration-Tunnel-VPN.png)
  
 ### Règles de pare-feu
  
@@ -202,15 +208,15 @@ Deux **phases 2** (ESP, AES-256-GCM, PFS groupe 14) définissent ensuite les ré
  
 Par défaut, pfSense bloque le trafic qui arrive sur l'interface WAN. Pour que le tunnel puisse s'établir, des règles explicites autorisent les flux de négociation et de transport IPsec :
  
-| Règle | Protocole | Port | Rôle |
-|---|---|---|---|
-| ESP | ESP | - | Transport des données chiffrées du tunnel |
-| IKE | UDP | 500 | Négociation IKEv2 et échange des clés |
-| NAT-T | UDP | 4500 | Encapsulation IPsec lorsqu'un équipement NAT se trouve sur le chemin |
+| Règle  | Protocole | Port | Rôle |
+|--------|-----------|------|---|
+| ESP    | ESP       | -    | Transport des données chiffrées du tunnel |
+| IKE    | UDP       | 500  | Négociation IKEv2 et échange des clés |
+| NAT-T  | UDP       | 4500 | Encapsulation IPsec lorsqu'un équipement NAT se trouve sur le chemin |
  
 Ces règles n'acceptent que l'adresse WAN du site pair : aucune autre adresse ne peut ouvrir de négociation.
  
-![Règles WAN pour le tunnel inter-site](images/reseau/14-Configuration-Regle-VPN-WAN.png)
+![Règles WAN pour le tunnel inter-site](../images/reseau/14-Configuration-Regle-VPN-WAN.png)
  
 #### Interface IPsec
  
@@ -243,7 +249,7 @@ Le réseau Management est normalement isolé. L'ouvrir depuis Lyon est donc une 
 - seuls les flux techniques des agents vers les serveurs sont autorisés ;
 - aucune interface d'administration (Zabbix, Wazuh) n'est accessible depuis Lyon ;
 - le flux ne circule que dans le tunnel chiffré et authentifié par certificat.
-<!-- [IMAGE] Règles de l'interface IPsec avec les alias AD_Ports_Freemotion et Supervision_Freemotion (images/reseau/14b-Configuration-Regles-IPsec.png) - figures 23 et 31 du rapport -->
+<!-- [IMAGE] Règles de l'interface IPsec avec les alias AD_Ports_Freemotion et Supervision_Freemotion (../images/reseau/14b-Configuration-Regles-IPsec.png) - figures 23 et 31 du rapport -->
  
 ### Tests et validation du tunnel VPN inter-site
  
@@ -255,7 +261,7 @@ L'état du tunnel se consulte dans **Status > IPsec > Overview**. Les deux phase
  
 - **Phase 1 (IKE)** : les deux pare-feux se sont authentifiés mutuellement et ont échangé leurs clés ;
 - **Phase 2 (IPsec / Child SA)** : un canal chiffré est créé pour chacun des deux couples de réseaux.
-![Test VPN - statut du tunnel IPsec](images/reseau/15-Test-VPN-Statut-Tunnel.png)
+![Test VPN - statut du tunnel IPsec](../images/reseau/15-Test-VPN-Statut-Tunnel.png)
  
 #### Connectivité inter-site
  
@@ -263,11 +269,11 @@ Les pings sont lancés depuis **Diagnostics > Ping**, avec comme source l'adress
  
 Ping du LAN de Paris (PRS-FW01) vers la VIP du LAN de Lyon :
  
-![Test VPN - ping LAN Paris vers LAN Lyon](images/reseau/16-Test-VPN-Ping-Inter-Site-LAN.png)
+![Test VPN - ping LAN Paris vers LAN Lyon](../images/reseau/16-Test-VPN-Ping-Inter-Site-LAN.png)
  
 Ping du LAN de Lyon (LY-FW01) vers la VIP du réseau Management de Paris. La règle ICMP utilisée pour ce test a été désactivée après la validation :
  
-![Test VPN - ping LAN Lyon vers MGMT Paris](images/reseau/17-Test-VPN-Ping-Inter-Site-MGMT.png)
+![Test VPN - ping LAN Lyon vers MGMT Paris](../images/reseau/17-Test-VPN-Ping-Inter-Site-MGMT.png)
  
 #### Résilience du tunnel lors d'une bascule CARP
  
@@ -278,8 +284,8 @@ Le tunnel étant établi entre les VIP WAN, il doit survivre à la perte d'un pa
 3. Sur le nouveau Master, **Status > IPsec > Overview** montre le tunnel renégocié automatiquement, sans intervention.
 4. Les pings LAN Paris vers LAN Lyon et LAN Lyon vers MGMT répondent de nouveau.
 5. À la sortie du mode maintenance, PRS-FW01 reprend son rôle et le tunnel se rétablit de la même façon.
-<!-- [IMAGE] IPsec Overview sur PRS-FW02 après bascule - tunnel établi (images/reseau/17b-Test-VPN-Bascule.png) - figure 38 du rapport -->
-<!-- [IMAGE] Ping Paris vers Lyon après bascule (images/reseau/17c-Test-VPN-Bascule-Ping.png) - figure 39 du rapport -->
+<!-- [IMAGE] IPsec Overview sur PRS-FW02 après bascule - tunnel établi (../images/reseau/17b-Test-VPN-Bascule.png) - figure 38 du rapport -->
+<!-- [IMAGE] Ping Paris vers Lyon après bascule (../images/reseau/17c-Test-VPN-Bascule-Ping.png) - figure 39 du rapport -->
  
 #### Bilan
  
@@ -308,7 +314,7 @@ Le mode est choisi selon le rôle et la criticité de chaque interface :
 | DMZ | Legacy, avec blocage automatique des offenders | Le service web doit rester disponible : on préfère un blocage réactif à l'inline, qui couperait l'accès en cas de faux positif |
 | MGMT | Legacy, détection seule | Ce réseau porte la supervision et l'ingestion des journaux vers Wazuh. Un blocage erroné supprimerait la visibilité au moment où elle est le plus utile. Les alertes y sont traitées en priorité. |
  
-![Configuration des interfaces Suricata (WAN, LAN, DMZ, MGMT)](images/reseau/18-Configuration-Suricata.png)
+![Configuration des interfaces Suricata (WAN, LAN, DMZ, MGMT)](../images/reseau/18-Configuration-Suricata.png)
  
 ### Sources de signatures
  
@@ -336,7 +342,7 @@ Le blocage n'a été activé qu'après au moins une semaine d'observation en sim
 - les flux de confiance (tunnel IPsec, réplication AD, pfSync, supervision, ingestion Wazuh) sont placés en **Pass List**.
 Les alertes sont réévaluées après chaque mise à jour majeure des signatures.
  
-<!-- [VALIDATION À AJOUTER si le test est réalisé] Scan nmap depuis l'extérieur vers la VIP WAN de Paris → alertes de catégorie scan dans Services > Suricata > WAN > Alerts, adresse source visible dans l'onglet Blocks (images/reseau/18b-Test-Suricata.png). -->
+<!-- [VALIDATION À AJOUTER si le test est réalisé] Scan nmap depuis l'extérieur vers la VIP WAN de Paris → alertes de catégorie scan dans Services > Suricata > WAN > Alerts, adresse source visible dans l'onglet Blocks (../images/reseau/18b-Test-Suricata.png). -->
  
 ---
  
@@ -361,7 +367,7 @@ Bloquer un continent entier serait trop large : l'Europe inclut par exemple la R
 - **Europe** : bloquée, sauf les 27 pays membres de l'Union européenne. Ils correspondent à la zone d'activité de Freemotion, donc à l'origine légitime des connexions vers ses services exposés.
 - **Amérique du Nord** : bloquée, sauf les États-Unis et le Canada.
 - **Autres continents** (Afrique, Antarctique, Asie, Océanie, Amérique du Sud), ainsi que les listes *Top Spammers* et *Proxy and Satellite* : bloqués intégralement.
-![Configuration GeoIP de pfBlockerNG](images/reseau/19-Configuration-pfBlokerNG.png)
+![Configuration GeoIP de pfBlockerNG](../images/reseau/19-Configuration-pfBlokerNG.png)
  
 ### Flux DNSBL
  
@@ -379,11 +385,11 @@ Les feeds retenus sont les suivants :
 - **EasyList / EasyPrivacy** : publicité et traqueurs ;
 - **URLhaus** : domaines qui hébergent activement des malwares, en cohérence avec Feodo Tracker côté Suricata ;
 - **Phishing Army** : domaines de phishing actifs.
-![Feeds DNSBL retenus dans pfBlockerNG : EasyList, URLhaus, Phishing Army](images/reseau/20-Configuration-DNSBL.png)
+![Feeds DNSBL retenus dans pfBlockerNG : EasyList, URLhaus, Phishing Army](../images/reseau/20-Configuration-DNSBL.png)
  
 Pour vérifier le fonctionnement, on résout, depuis un poste du domaine, un domaine de test référencé dans un feed. La réponse renvoie l'adresse de la page de blocage locale de pfBlockerNG au lieu de l'adresse réelle : toute la chaîne fonctionne, du poste au DNSBL en passant par le contrôleur de domaine et Unbound.
  
-<!-- [IMAGE] nslookup d'un domaine listé depuis un poste → IP de la page de blocage (images/reseau/22-Test-DNSBL.png) -->
+<!-- [IMAGE] nslookup d'un domaine listé depuis un poste → IP de la page de blocage (../images/reseau/22-Test-DNSBL.png) -->
  
 ---
  
