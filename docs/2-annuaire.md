@@ -2,6 +2,9 @@
 
 [← Retour au projet](../README.md)
 
+[← Réseau](./0-architecture.md) · [Serveur de Fichiers →](./2-annuaire.md)
+
+
 ## Introduction
 
 L'identité du système d'information de **Freemotion** repose sur un annuaire **Active Directory Domain Services (AD DS)** multisite. Il centralise la gestion des comptes, des ressources et des politiques de sécurité, et sert de socle aux autres services de l'infrastructure, notamment le [serveur de fichiers](3-serveur-fichiers.md) et les [bureaux à distance](4-rds.md).
@@ -44,7 +47,7 @@ Les deux sites communiquent par le **tunnel VPN IPsec IKEv2** décrit dans la pa
 
 ### Pourquoi un RODC à Lyon ?
 
-Le site de Lyon ne dispose d'aucune sécurité physique fiable. Un **RODC** (*Read-Only Domain Controller*) ne stocke pas l'intégralité de l'annuaire et ne met en cache que les mots de passe explicitement autorisés. En cas de compromission physique, l'exposition est limitée aux seuls comptes lyonnais, tout en conservant une authentification locale. Ce choix répond au principe de moindre privilège recommandé par l'ANSSI.
+Le site de Lyon ne dispose d'aucune sécurité physique fiable. Un **RODC** (*Read-Only Domain Controller*) ne stocke pas l'intégralité de l'annuaire et ne met en cache que les mots de passe explicitement autorisés. En cas de compromission physique, l'exposition est limitée aux seuls comptes lyonnais, tout en conservant une authentification locale. 
 
 ### Promotion
 
@@ -52,7 +55,7 @@ Le site de Lyon ne dispose d'aucune sécurité physique fiable. Un **RODC** (*Re
 - **PRS-DC-02** est promu en contrôleur additionnel et réplique l'annuaire depuis `PRS-DC-01`.
 - **LY-RODC-01** rejoint d'abord le domaine, puis est promu en RODC et rattaché au site de Lyon.
 
-![Promotion de PRS-DC-01](images/active-directory/01-Promotion-DC.png)
+![Promotion de PRS-DC-01](../images/active-directory/01-Promotion-DC.png)
 
 ---
 
@@ -81,7 +84,7 @@ L'**association des sous-réseaux aux sites** est essentielle : sans elle, les m
 
 Le **coût** permet à AD de choisir le chemin de réplication le plus prioritaire lorsque plusieurs liens existent : plus il est faible, plus le lien est privilégié. Un seul lien étant présent ici, la valeur par défaut est conservée. L'**intervalle de 15 minutes** limite la consommation de bande passante sur le VPN tout en gardant le RODC à jour.
 
-![Sites et Services AD : sites, sous-réseaux et lien Paris-Lyon](images/active-directory/02-Configuration-Sites-Services.png)
+![Sites et Services AD : sites, sous-réseaux et lien Paris-Lyon](../images/active-directory/02-Configuration-Sites-Services.png)
 
 ---
 
@@ -123,7 +126,7 @@ freemotion.fr
 
 Toutes les OU sont regroupées sous une OU racine `_Freemotion`. Le préfixe underscore la place en tête de la console ADUC et la distingue des conteneurs système générés par Windows (`Builtin`, `Computers`, `Users`). La création de l'ensemble des OU est **automatisée par un script PowerShell** (`New-ADOrganizationalUnit`), ce qui garantit une structure reproductible et sans erreur de chemin LDAP.
 
-![Structure des OU après exécution du script](images/active-directory/03-Structure-OU.png)
+![Structure des OU après exécution du script](../images/active-directory/03-Structure-OU.png)
 
 ### Conventions de nommage
 
@@ -150,7 +153,7 @@ redirusr "OU=Users,OU=Quarantaine,OU=_Sites,OU=_Freemotion,DC=freemotion,DC=fr"
 
 Tout nouvel ordinateur ou compte utilisateur arrive donc en quarantaine, quelle que soit sa destination, avant d'être déplacé vers son OU finale (site et type).
 
-![Redirection des objets par défaut vers l'OU Quarantaine](images/active-directory/04-Configuration-redircmp-redirusr.png)
+![Redirection des objets par défaut vers l'OU Quarantaine](../images/active-directory/04-Configuration-redircmp-redirusr.png)
 
 ### Principes d'administration
 
@@ -176,7 +179,7 @@ Les groupes sont créés sur `PRS-DC-01`.
 | `GDL-RODC-Lyon-Autorisés` | Domain Local | **Autorise** la mise en cache ; contient `GG-Users-Lyon` et `GG-Computers-Lyon`                                                    |
 | `GDL-RODC-Lyon-Refusés`   | Domain Local | **Refuse** la mise en cache ; contient `GG-Admins-Domaine`, les comptes de service et les comptes sensibles ou à privilèges élevés |
 
-![Groupes AGDLP dédiés à la PRP du RODC](images/active-directory/05-Configuration-prp-groupes-agdlp.png)
+![Groupes AGDLP dédiés à la PRP du RODC](../images/active-directory/05-Configuration-prp-groupes-agdlp.png)
 
 ### Déclaration dans la PRP
 
@@ -186,7 +189,7 @@ Les utilisateurs lyonnais peuvent ainsi s'authentifier localement même en cas d
 
 Cette configuration doit être maintenue à jour à chaque évolution : arrivée de nouveaux utilisateurs, création de comptes de service ou modification des périmètres d'administration.
 
-![Déclaration des groupes autorisés et refusés dans la PRP de LY-RODC-01](images/active-directory/06-Configuration-prp-declaration.png)
+![Déclaration des groupes autorisés et refusés dans la PRP de LY-RODC-01](../images/active-directory/06-Configuration-prp-declaration.png)
 
 ---
 
@@ -203,7 +206,7 @@ La sécurité de l'annuaire est évaluée avec **PingCastle**, qui attribue au d
 
 Le score est divisé par deux entre les deux exécutions, ce qui traduit une amélioration notable de la sécurité du domaine.
 
-![Rapport PingCastle : Domain Risk Level 30 / 100](images/active-directory/07-pingcastle-score.png)
+![Rapport PingCastle : Domain Risk Level 30 / 100](../images/active-directory/07-pingcastle-score.png)
 
 ### Point restant
 
