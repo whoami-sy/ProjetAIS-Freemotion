@@ -49,7 +49,7 @@ Cette séparation dissocie la gestion des appartenances (GG) de celle des droits
 | `GG_Externe_Commercial_RO` | Externes en lecture seule sur Commercial |
 | `GG_Externe_Direction_RO`  | Externes en lecture seule sur Direction  |
 
-![Groupes globaux dans l'annuaire](../../images/serveur-fichiers/01-groupes-gg.png)
+![Groupes globaux dans l'annuaire](../images/serveur-fichiers/01-groupes-gg.png)
 
 | Groupe local de domaine (GDL) | Dossier ciblé | Droit NTFS    | Membre (GG)                |
 |-------------------------------|---------------|---------------|----------------------------|
@@ -62,7 +62,7 @@ Cette séparation dissocie la gestion des appartenances (GG) de celle des droits
 
 Chaque dossier dispose de deux GDL distincts : l'un en modification pour le personnel du service, l'autre en lecture seule pour les externes. Cette séparation évite d'accorder par erreur des droits d'écriture à un groupe destiné à la simple consultation.
 
-![Groupes locaux de domaine dans l'annuaire](../../images/serveur-fichiers/02-groupes-gdl.png)
+![Groupes locaux de domaine dans l'annuaire](../images/serveur-fichiers/02-groupes-gdl.png)
 
 ### Permissions SMB et NTFS
 
@@ -78,7 +78,7 @@ Deux couches de permissions se cumulent, le droit effectif étant toujours **le 
 - Les utilisateurs peuvent **traverser** le dossier racine, sans accéder au contenu des sous-dossiers qui ne les concernent pas.
 - Les droits sont hérités (`(OI)(CI)`) par tous les sous-dossiers et fichiers créés ultérieurement.
 
-![ACL NTFS des dossiers de service](../../images/serveur-fichiers/03-permissions-ntfs.png)
+![ACL NTFS des dossiers de service](../images/serveur-fichiers/03-permissions-ntfs.png)
 
 ### Tests de validation
 
@@ -93,15 +93,15 @@ Pour chaque service, un compte `_RW` est testé en lecture et en écriture, un c
 
 **Accès en écriture avec un compte RH**
 
-![Test d'accès en écriture, compte RH](../../images/serveur-fichiers/04-test-acces-rh-rw.png)
+![Test d'accès en écriture, compte RH](../images/serveur-fichiers/04-test-acces-rh-rw.png)
 
 **Accès refusé à un autre dossier de service avec le même compte RH**
 
-![Test d'accès refusé, autre dossier de service](../../images/serveur-fichiers/05-test-acces-refuse.png)
+![Test d'accès refusé, autre dossier de service](../images/serveur-fichiers/05-test-acces-refuse.png)
 
 **Accès en lecture seule avec un compte externe : la création d'un fichier est refusée**
 
-![Test d'accès en lecture seule, compte externe](../../images/serveur-fichiers/06-test-acces-rh-ro.png)
+![Test d'accès en lecture seule, compte externe](../images/serveur-fichiers/06-test-acces-rh-ro.png)
 
 ---
 
@@ -120,7 +120,7 @@ Le modèle AGDLP est réutilisé. Un groupe global `GG-Itinerants-<Site>` regrou
 
 Sur chaque partage, l'héritage est désactivé et les permissions sont explicites : les GDL disposent uniquement de *Créer des dossiers / ajouter des données* et de *Lire les attributs* (ce dossier seulement). Chaque utilisateur ne peut ainsi créer que son propre dossier de profil.
 
-![Partages de redirection sur PRS-FILE-01](../../images/serveur-fichiers/07-redirection-dossier-partage.png)
+![Partages de redirection sur PRS-FILE-01](../images/serveur-fichiers/07-redirection-dossier-partage.png)
 
 ### GPO de redirection
 
@@ -128,19 +128,19 @@ Une seule GPO, `Redirection_Bureau_Documents`, gère les deux sites en dirigeant
 
 **Filtrage de sécurité** : il est restreint aux deux groupes `GDL-Redir-Doc-Bureau-<Site>` (*Utilisateurs authentifiés* retiré), ce qui limite l'application aux seuls itinérants.
 
-![Filtrage de sécurité de la GPO de redirection](../../images/serveur-fichiers/08-redirection-gpo-filtrage-securite.png)
+![Filtrage de sécurité de la GPO de redirection](../images/serveur-fichiers/08-redirection-gpo-filtrage-securite.png)
 
 **Délégation** : *Utilisateurs authentifiés* conserve le droit de lecture, nécessaire à l'évaluation de la GPO, sans que son application soit étendue à tout le domaine.
 
-![Délégation de la GPO de redirection](../../images/serveur-fichiers/09-redirection-gpo-delegation.png)
+![Délégation de la GPO de redirection](../images/serveur-fichiers/09-redirection-gpo-delegation.png)
 
 **Redirection** : Documents et Bureau sont redirigés vers `\\PRS-FILE-01\Profils-Paris$` ou `\\PRS-FILE-01\Profils-Lyon$`, avec un dossier créé par utilisateur sous le chemin racine.
 
-![Redirection avancée par groupe](../../images/serveur-fichiers/10-redirection-gpo.png)
+![Redirection avancée par groupe](../images/serveur-fichiers/10-redirection-gpo.png)
 
 **Test** : après `gpupdate /force` et réouverture de session, les fichiers de Documents et du Bureau sont conservés mais désormais stockés sur le partage du site. L'emplacement réel du dossier et l'icône de synchronisation hors connexion le confirment.
 
-![Test de la redirection de dossiers](../../images/serveur-fichiers/11-test-redirection-dossier.png)
+![Test de la redirection de dossiers](../images/serveur-fichiers/11-test-redirection-dossier.png)
 
 ---
 
@@ -154,11 +154,11 @@ Chaque dossier de service dispose d'un quota **inconditionnel de 1 Go** : la lim
 
 Le modèle par défaut « Limite de 2 Go » est modifié et renommé plutôt que de créer un modèle dédié. Le quota est appliqué à la racine des services avec l'option **Appliquer automatiquement le modèle et créer des quotas sur les sous-dossiers existants et nouveaux**, ce qui couvre aussi les futurs services sans configuration manuelle.
 
-![Quotas créés sur les dossiers de service](../../images/serveur-fichiers/12-quotas-crees.png)
+![Quotas créés sur les dossiers de service](../images/serveur-fichiers/12-quotas-crees.png)
 
 **Test** : le dépôt d'un fichier qui dépasse la limite échoue avec le message « Espace disque insuffisant ». Un événement est consigné dans le journal Application et une notification par e-mail est envoyée selon le modèle.
 
-![Dépassement de quota : message d'erreur](../../images/serveur-fichiers/13-quotas-erreur.png)
+![Dépassement de quota : message d'erreur](../images/serveur-fichiers/13-quotas-erreur.png)
 
 ### Filtrage des extensions
 
@@ -166,11 +166,11 @@ Un filtrage **actif** bloque, sur chaque dossier de service, les **exécutables 
 
 Contrairement aux quotas, FSRM n'applique pas automatiquement un filtre aux sous-dossiers existants et futurs. Un filtre est donc créé pour **chaque** dossier de service.
 
-![Modèle de filtre « Bloquer exécutables et ISO »](../../images/serveur-fichiers/14-filtrage-modele.png)
+![Modèle de filtre « Bloquer exécutables et ISO »](../images/serveur-fichiers/14-filtrage-modele.png)
 
 **Test** : le dépôt d'un fichier `.exe` est refusé, et un événement est consigné avec le fichier concerné, le groupe de fichiers correspondant et le dossier visé.
 
-![Événement consigné après un dépôt bloqué](../../images/serveur-fichiers/15-filtrage-evenement.png)
+![Événement consigné après un dépôt bloqué](../images/serveur-fichiers/15-filtrage-evenement.png)
 
 ### Classification automatique
 
