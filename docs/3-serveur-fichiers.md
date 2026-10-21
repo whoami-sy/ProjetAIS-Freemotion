@@ -2,6 +2,8 @@
 
 [← Retour au projet](../README.md)
 
+[← Annuaire](2-annuaire.md) · [RDS →](4-rds.md)
+
 ## Introduction
 
 Le serveur de fichiers **PRS-FILE-01** (`10.9.75.20`) héberge les données communes à plusieurs utilisateurs et à plusieurs services. Il repose sur trois briques complémentaires :
