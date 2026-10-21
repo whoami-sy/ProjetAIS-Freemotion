@@ -1,6 +1,9 @@
 # pfSense : haute disponibilité, VPN et sécurité périmétrique
 
 [← Retour au projet](../README.md)
+
+[← Architecture](./0-architecture.md) · [Annuaire →](./2-annuaire.md)
+
  
 ## Sommaire
  
