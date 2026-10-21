@@ -177,4 +177,12 @@ La classification ajoute des propriétés personnalisées aux fichiers selon leu
 - une première règle positionne « **Oui** » si le terme `Confidentiel`
 
 ---
+
+## Conclusion
+
+`PRS-FILE-01` combine trois briques cohérentes avec le reste de l'infrastructure : des partages de service structurés selon le modèle AGDLP, déjà utilisé pour la PRP du RODC et pour l'accès RDS ; une redirection de profils itinérants avec fichiers hors connexion, qui assure la continuité entre Paris et Lyon ; et un rôle FSRM complet, qui apporte maîtrise et traçabilité de l'espace de stockage.
+
+Les tests réalisés (accès effectifs par groupe, redirection de dossiers, dépassement de quota, dépôt de fichier bloqué, classification et journalisation) confirment le bon fonctionnement de l'ensemble. La classification et l'audit apportent en outre la visibilité nécessaire pour ajuster, si besoin, les règles de quotas et de filtrage définies en amont.
+
+---
 [← Annuaire](2-annuaire.md) · [Sommaire](../README.md) · [Serveur RDS →](4-rds.md)
