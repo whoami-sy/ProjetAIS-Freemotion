@@ -156,7 +156,7 @@ Le modèle par défaut « Limite de 2 Go » est modifié et renommé plutôt que
 
 ![Quotas créés sur les dossiers de service](../images/serveur-fichiers/12-quotas-crees.png)
 
-**Test** : le dépôt d'un fichier qui dépasse la limite échoue avec le message « Espace disque insuffisant ». Un événement est consigné dans le journal Application (source `SRMSVC`) et une notification par e-mail est envoyée selon le modèle.
+**Test** : le dépôt d'un fichier qui dépasse la limite échoue avec le message « Espace disque insuffisant ». Un événement est consigné dans le journal Application et une notification par e-mail est envoyée selon le modèle.
 
 ![Dépassement de quota : message d'erreur](../images/serveur-fichiers/13-quotas-erreur.png)
 
@@ -176,7 +176,30 @@ Contrairement aux quotas, FSRM n'applique pas automatiquement un filtre aux sous
 
 La classification ajoute des propriétés personnalisées aux fichiers selon leur contenu. Une propriété **« Confidentiel »** (Oui/Non) est mise en place sur le dossier **Direction** :
 
-- une première règle positionne « **Oui** » si le terme `Confidentiel`
+- une première règle positionne « **Oui** » si le terme `Confidentiel` apparaît au moins une fois dans le fichier ;
+- une seconde règle positionne « **Non** » en l'absence du terme, les deux règles étant nécessaires ;
+- les **Microsoft Office Filter Packs** rendent le contenu des fichiers Office analysable ;
+- la classification s'exécute chaque jour, en dehors des heures ouvrées, avec réévaluation des propriétés existantes.
+
+**Test** : après exécution de la tâche, l'onglet *Classification* des propriétés Windows affiche « Confidentiel : Oui » pour les fichiers contenant le terme et « Non » pour les autres.
+
+![Fichier classé « Confidentiel : Oui »](images/serveur-fichiers/16-classification-oui.png)
+
+### Audit d'accès
+
+L'audit repose sur deux éléments complémentaires.
+
+Une **GPO d'audit** (`Audit_Files_Folders_Access`) active la journalisation de l'accès aux objets, en réussite comme en échec. Elle est liée à l'OU du serveur de fichiers, avec un filtrage de sécurité limité à ce serveur.
+
+![GPO d'audit liée à l'OU du serveur](images/serveur-fichiers/17-audit-gpo.png)
+
+Des **SACL** posées sur le dossier racine des services définissent les actions à journaliser et se propagent aux dossiers de service existants et futurs. Sont audités, en réussite comme en échec, pour les **Utilisateurs du domaine** : la lecture, la création de fichiers et de dossiers, la suppression et la modification des permissions NTFS.
+
+![SACL sur le dossier racine des services](images/serveur-fichiers/18-audit-sacl.png)
+
+Les événements sont consultables dans le journal **Sécurité** de l'Observateur d'événements, catégorie *File System*.
+
+![Événements d'accès dans le journal Sécurité](images/serveur-fichiers/19-audit-logs.png)
 
 ---
 
@@ -184,7 +207,7 @@ La classification ajoute des propriétés personnalisées aux fichiers selon leu
 
 `PRS-FILE-01` combine trois briques cohérentes avec le reste de l'infrastructure : des partages de service structurés selon le modèle AGDLP, déjà utilisé pour la PRP du RODC et pour l'accès RDS ; une redirection de profils itinérants avec fichiers hors connexion, qui assure la continuité entre Paris et Lyon ; et un rôle FSRM complet, qui apporte maîtrise et traçabilité de l'espace de stockage.
 
-Les tests réalisés (accès effectifs par groupe, redirection de dossiers, dépassement de quota, dépôt de fichier bloqué, classification et journalisation) confirment le bon fonctionnement de l'ensemble. La classification et l'audit apportent en outre la visibilité nécessaire pour ajuster, si besoin, les règles de quotas et de filtrage définies en amont.
+Les tests réalisés (accès effectifs par groupe, redirection de dossiers, dépassement de quota, dépôt de fichier bloqué, classification et journalisation) confirment le bon fonctionnement de l'ensemble. 
 
 ---
 [← Annuaire](2-annuaire.md) · [Sommaire](../README.md) · [Serveur RDS →](4-rds.md)
