@@ -2,7 +2,7 @@
 
 [← Retour au projet](../README.md)
 
-[← Réseau](1-reseau.md) · [Serveur de Fichiers →](./2-annuaire.md)
+[← Réseau](1-reseau.md) · [Serveur de Fichiers →](3-serveur-fichiers.md)
 
 
 ## Introduction
