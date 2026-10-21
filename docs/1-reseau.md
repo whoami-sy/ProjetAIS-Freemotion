@@ -290,15 +290,15 @@ Ping du LAN de Lyon (LY-FW01) vers la VIP du réseau Management de Paris. La rè
  
 Le tunnel étant établi entre les VIP WAN, il doit survivre à la perte d'un pare-feu. Le mode maintenance persistant est activé sur `PRS-FW01` : `PRS-FW02` devient MASTER et reprend la VIP WAN. 
 Sur le nouveau Master, le tunnel est renégocié automatiquement, sans intervention.
-![Tests VPN - IPsec Overview sur PRS-FW02 après bascule - tunnel établi](../../../assets/documentation/freemotion/reseau/19-Test-VPN-FW02-Post-Bascule.png)
+![Tests VPN - IPsec Overview sur PRS-FW02 après bascule - tunnel établi](../images/reseau/19-Test-VPN-FW02-Post-Bascule.png)
 
 Les pings LAN-LAN et LAN Lyon → MGMT répondent de nouveau : 
 
 **Ping LAN Paris → LAN Lyon**
-![Ping LAN Paris → LAN Lyon après bascule](../../../assets/documentation/freemotion/reseau/20-Test-VPN-Ping-Paris-Lyon.png)
+![Ping LAN Paris → LAN Lyon après bascule](../images/reseau/20-Test-VPN-Ping-Paris-Lyon.png)
 
 **Ping LAN Lyon → MGMT**
-![Ping LAN Lyon → MGMT après bascule](../../../assets/documentation/freemotion/reseau/21-Test-VPN-Ping-Lyon-MGMT.png)
+![Ping LAN Lyon → MGMT après bascule](../images/reseau/21-Test-VPN-Ping-Lyon-MGMT.png)
 
 À la sortie du mode maintenance, `PRS-FW01` reprend son rôle et le tunnel se rétablit de la même façon.
 
