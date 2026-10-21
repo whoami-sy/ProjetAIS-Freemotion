@@ -4,12 +4,19 @@
  
 ## Sommaire
  
-- [Introduction](#introduction)
-- [Haute disponibilité pfSense](#haute-disponibilité-pfsense)
-- [Interconnexion VPN IPsec](#interconnexion-vpn-ipsec)
-- [Détection d'intrusion Suricata](#détection-dintrusion-suricata)
-- [Filtrage pfBlockerNG](#filtrage-pfblockerng)
-- [Conclusion](#conclusion)
+ 
+[Introduction](#introduction)
+
+[Haute disponibilité pfSense](#haute-disponibilité-pfsense)
+
+[Interconnexion VPN IPsec](#interconnexion-vpn-ipsec)
+
+[Détection d'intrusion Suricata](#détection-dintrusion-suricata)
+
+[Filtrage pfBlockerNG](#filtrage-pfblockerng)
+
+[Conclusion](#conclusion)
+
 ---
  
 ## Introduction
@@ -20,6 +27,7 @@ Cette page décrit la sécurité périmétrique de Freemotion. Elle s'articule a
 - une interconnexion VPN IPsec entre les deux sites ;
 - une détection d'intrusion avec Suricata ;
 - un filtrage géographique et DNS avec pfBlockerNG.
+
 Chaque site, Paris comme Lyon, dispose de deux pfSense en haute disponibilité grâce au protocole CARP. Le filtrage continue ainsi de fonctionner si l'un des deux nœuds tombe : l'autre prend le relais automatiquement.
  
 ### Rappel d'architecture
@@ -277,16 +285,20 @@ Ping du LAN de Lyon (LY-FW01) vers la VIP du réseau Management de Paris. La rè
  
 #### Résilience du tunnel lors d'une bascule CARP
  
-Le tunnel étant établi entre les VIP WAN, il doit survivre à la perte d'un pare-feu. Le test se déroule ainsi :
- 
-1. Le mode maintenance persistant est activé sur PRS-FW01.
-2. PRS-FW02 devient MASTER et reprend la VIP WAN.
-3. Sur le nouveau Master, **Status > IPsec > Overview** montre le tunnel renégocié automatiquement, sans intervention.
-4. Les pings LAN Paris vers LAN Lyon et LAN Lyon vers MGMT répondent de nouveau.
-5. À la sortie du mode maintenance, PRS-FW01 reprend son rôle et le tunnel se rétablit de la même façon.
-<!-- [IMAGE] IPsec Overview sur PRS-FW02 après bascule - tunnel établi (../images/reseau/17b-Test-VPN-Bascule.png) - figure 38 du rapport -->
-<!-- [IMAGE] Ping Paris vers Lyon après bascule (../images/reseau/17c-Test-VPN-Bascule-Ping.png) - figure 39 du rapport -->
- 
+Le tunnel étant établi entre les VIP WAN, il doit survivre à la perte d'un pare-feu. Le mode maintenance persistant est activé sur `PRS-FW01` : `PRS-FW02` devient MASTER et reprend la VIP WAN. 
+Sur le nouveau Master, le tunnel est renégocié automatiquement, sans intervention.
+![Tests VPN - IPsec Overview sur PRS-FW02 après bascule - tunnel établi](../../../assets/documentation/freemotion/reseau/19-Test-VPN-FW02-Post-Bascule.png)
+
+Les pings LAN-LAN et LAN Lyon → MGMT répondent de nouveau : 
+
+**Ping LAN Paris → LAN Lyon**
+![Ping LAN Paris → LAN Lyon après bascule](../../../assets/documentation/freemotion/reseau/20-Test-VPN-Ping-Paris-Lyon.png)
+
+**Ping LAN Lyon → MGMT**
+![Ping LAN Lyon → MGMT après bascule](../../../assets/documentation/freemotion/reseau/21-Test-VPN-Ping-Lyon-MGMT.png)
+
+À la sortie du mode maintenance, `PRS-FW01` reprend son rôle et le tunnel se rétablit de la même façon.
+
 #### Bilan
  
 Les deux phases 2 laissent passer exactement les réseaux prévus, et le tunnel se renégocie seul après la perte d'un pare-feu. La liaison entre les sites ne constitue donc pas un point de défaillance unique.
@@ -299,20 +311,14 @@ Suricata est déployé sur les quatre pare-feux de Paris et de Lyon. Comme la sy
  
 ### Modes de fonctionnement
  
-Suricata propose deux modes :
- 
-- **Legacy** : Suricata analyse une copie du trafic. Il lève des alertes et peut, si l'option est activée, bloquer *a posteriori* l'adresse à l'origine d'une alerte (*block offenders*). Le premier paquet malveillant passe donc.
-- **Inline (IPS)** : le trafic doit traverser le moteur avant d'être routé, grâce à `netmap`. Suricata peut alors rejeter un paquet en temps réel.
-Le mode est choisi selon le rôle et la criticité de chaque interface :
- 
-<!-- À VÉRIFIER : blocage des offenders activé sur LAN et DMZ (version du rapport, figures 43-44). Sinon, remplacer par « détection seule ». -->
- 
-| Interface | Mode | Justification |
-|---|---|---|
-| WAN | Inline (IPS) | Trafic externe et non maîtrisé : rejet en temps réel dès la frontière du réseau |
-| LAN | Legacy, avec blocage automatique des offenders | Détection d'une compromission interne, sans imposer l'inline à tout le trafic métier |
-| DMZ | Legacy, avec blocage automatique des offenders | Le service web doit rester disponible : on préfère un blocage réactif à l'inline, qui couperait l'accès en cas de faux positif |
-| MGMT | Legacy, détection seule | Ce réseau porte la supervision et l'ingestion des journaux vers Wazuh. Un blocage erroné supprimerait la visibilité au moment où elle est le plus utile. Les alertes y sont traitées en priorité. |
+Suricata fonctionne selon deux modes distincts, appliqués différemment selon l'interface :
+
+- **Legacy (IDS)** : Suricata observe une copie du trafic et génère des alertes, sans intervenir sur les paquets. Ce mode est passif tant que le blocage des « offenders » n'est pas activé : une attaque est détectée mais pas empêchée.
+- **Inline (IPS)** : le trafic est forcé de traverser le moteur Suricata avant d'être routé, via la fonctionnalité `netmap` de pfSense. Suricata peut alors rejeter un paquet en temps réel.
+
+Modes choisis :
+- **WAN - Inline (IPS)** : le trafic entrant, externe et moins prévisible, se prête à un blocage actif une fois le tuning des faux positifs réalisé.
+- **LAN & DMZ - Legacy (IDS)** : un blocage erroné pourrait interrompre un flux métier. L'inspection reste donc passive, pour garder la visibilité sans risquer de couper un service.
  
 ![Configuration des interfaces Suricata (WAN, LAN, DMZ, MGMT)](../images/reseau/18-Configuration-Suricata.png)
  
@@ -352,22 +358,23 @@ pfBlockerNG-devel est le second mécanisme de défense périmétrique, compléme
  
 - **l'origine géographique** de l'adresse source (listes GeoIP) ;
 - **la réputation du domaine** interrogé en DNS (listes DNSBL).
-Ce filtrage écarte le trafic évident avant toute inspection approfondie. Suricata a ainsi moins de trafic à analyser, génère moins d'alertes, et ses alertes restantes sont plus faciles à exploiter.
- 
-pfBlockerNG est installé et configuré sur chaque nœud de la paire HA. Les listes et alias peuvent être répliqués par XML-RPC, mais la clé de licence MaxMind, nécessaire aux listes GeoIP, doit être saisie séparément sur chaque nœud.
+
+Ce filtrage réduit le bruit et le nombre d'alertes générées par le trafic en provenance de zones sans lien avec l'activité de l'entreprise, ce qui facilite l'exploitation des alertes Suricata.
  
 ### Politique de blocage géographique
  
-Le filtrage GeoIP s'applique **en entrée sur l'interface WAN** (*Deny Inbound*). Il ne concerne donc que les connexions ouvertes depuis Internet vers l'infrastructure. Les connexions sortantes, par exemple vers les services Microsoft 365, ne sont pas touchées : leur trafic retour est autorisé par la table d'états du pare-feu.
- 
-Bloquer un continent entier serait trop large : l'Europe inclut par exemple la Russie. La politique retenue s'appuie donc sur une **sélection de pays au sein de chaque continent GeoIP** :
- 
-<!-- À COMPLÉTER : justification de l'ouverture entrante des États-Unis et du Canada (qui, dans ces pays, doit pouvoir initier une connexion vers l'infrastructure ?). Alternative : restreindre l'entrée à l'UE et mettre à jour la capture 19. -->
- 
-- **Europe** : bloquée, sauf les 27 pays membres de l'Union européenne. Ils correspondent à la zone d'activité de Freemotion, donc à l'origine légitime des connexions vers ses services exposés.
-- **Amérique du Nord** : bloquée, sauf les États-Unis et le Canada.
-- **Autres continents** (Afrique, Antarctique, Asie, Océanie, Amérique du Sud), ainsi que les listes *Top Spammers* et *Proxy and Satellite* : bloqués intégralement.
+Plutôt qu'un blocage par continent complet (trop large : l'Europe inclut par exemple la Russie), la politique retenue s'appuie sur une **sélection de pays au sein de chaque continent GeoIP** :
+
+- **Europe** : bloquée, à l'exception des 27 pays membres de l'Union européenne.
+- **Amérique du Nord** : bloquée, à l'exception des États-Unis et du Canada.
+- **Autres continents** (Afrique, Antarctique, Asie, Océanie, Amérique du Sud) : bloqués intégralement.
+
+Les pays exclus de ces sélections (UE, États-Unis, Canada) ne sont soumis à aucune règle de blocage GeoIP et restent donc autorisés.
+
 ![Configuration GeoIP de pfBlockerNG](../images/reseau/19-Configuration-pfBlokerNG.png)
+
+Ces exceptions répondent à des besoins métier précis : **l'Union européenne** est autorisée car elle correspond à la zone d'activité de Freemotion, et les **États-Unis** le sont pour permettre l'accès aux services cloud de Microsoft (OneDrive, etc.), hébergés en grande partie sur leur infrastructure. {/* [À VÉRIFIER] Justification du Canada + sens du filtrage (entrant / sortant) sur lequel s'applique le GeoIP. */}
+
  
 ### Flux DNSBL
  
@@ -385,6 +392,7 @@ Les feeds retenus sont les suivants :
 - **EasyList / EasyPrivacy** : publicité et traqueurs ;
 - **URLhaus** : domaines qui hébergent activement des malwares, en cohérence avec Feodo Tracker côté Suricata ;
 - **Phishing Army** : domaines de phishing actifs.
+  
 ![Feeds DNSBL retenus dans pfBlockerNG : EasyList, URLhaus, Phishing Army](../images/reseau/20-Configuration-DNSBL.png)
  
 Pour vérifier le fonctionnement, on résout, depuis un poste du domaine, un domaine de test référencé dans un feed. La réponse renvoie l'adresse de la page de blocage locale de pfBlockerNG au lieu de l'adresse réelle : toute la chaîne fonctionne, du poste au DNSBL en passant par le contrôleur de domaine et Unbound.
@@ -398,7 +406,9 @@ Pour vérifier le fonctionnement, on résout, depuis un poste du domaine, un dom
 Le périmètre de Freemotion repose sur une défense en couches, sans point de défaillance unique au niveau du filtrage :
  
 - **Haute disponibilité** : chaque site dispose de sa paire pfSense en CARP, synchronisée par pfSync et XML-RPC sur un lien dédié. La bascule a été validée dans les deux sens, sans perte de paquet.
+
 - **Interconnexion** : les sites sont reliés par un tunnel IPsec IKEv2 authentifié par certificats. Ses deux phases 2 et ses règles par alias limitent les échanges aux flux Active Directory et de supervision, et le tunnel survit à la perte d'un pare-feu.
+  
 - **Inspection et filtrage** : Suricata inspecte le trafic avec un mode et des catégories adaptés à chaque interface. En amont, pfBlockerNG écarte le trafic issu de zones sans lien avec l'activité de l'entreprise, ainsi que les domaines malveillants.
 Deux points restent à surveiller en exploitation : vérifier que Suricata tourne bien sur le nouveau Master après chaque bascule, et réévaluer les faux positifs après chaque mise à jour des signatures.
  
