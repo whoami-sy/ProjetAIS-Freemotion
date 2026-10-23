@@ -4,7 +4,6 @@
 
 [← DMZ](5-dmz.md)
 
----
 ## Introduction
 
 Une infrastructure redondante n'est fiable que si ses défaillances sont visibles. La **supervision** de Freemotion répond à deux questions distinctes : *les services fonctionnent-ils ?* et *le SI est-il attaqué ?* Deux briques complémentaires, déployées sur le réseau **Management** (`10.9.99.0/24`), y répondent :
