@@ -2,7 +2,7 @@
 
 [← Retour au projet](../README.md)
 
-[← DMZ](5-dmz.md)
+[← DMZ](5-dmz.md) · [Perspectives →](7-perspectives.md)
 
 ## Introduction
 
@@ -184,4 +184,4 @@ Les tests de bout en bout (arrêt de HAProxy, coupure du VPN, attaque par force 
 
 ---
 
-[← DMZ](5-dmz.md) · [Sommaire](../README.md)
+[← DMZ](5-dmz.md) · [Sommaire](../README.md) · [Perspectives →](7-perspectives.md)
