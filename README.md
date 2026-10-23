@@ -2,7 +2,7 @@
 
 > Projet annuel du Bachelor AIS · 2025 - 2026 · Projet scolaire · Déployé
 
-![pfSense](https://img.shields.io/badge/pfSense-212121?style=flat) ![Active Directory](https://img.shields.io/badge/Active_Directory-0078D4?style=flat) ![Windows Server](https://img.shields.io/badge/Windows_Server-0078D4?style=flat) ![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat) ![HAProxy](https://img.shields.io/badge/HAProxy-106DA9?style=flat) ![Zabbix](https://img.shields.io/badge/Zabbix-D40000?style=flat) ![Wazuh](https://img.shields.io/badge/Wazuh-3595F6?style=flat)
+![Réseau](https://img.shields.io/badge/Réseau-pfSense-3B5B7A?style=flat-square&labelColor=374151) ![Réseau](https://img.shields.io/badge/Réseau-Suricata-3B5B7A?style=flat-square&labelColor=374151) ![Système](https://img.shields.io/badge/Système-Active_Directory-4A6B5D?style=flat-square&labelColor=374151) ![Système](https://img.shields.io/badge/Système-Windows_Server-4A6B5D?style=flat-square&labelColor=374151) ![DMZ](https://img.shields.io/badge/DMZ-Nginx-6B5B7A?style=flat-square&labelColor=374151) ![DMZ](https://img.shields.io/badge/DMZ-HAProxy-6B5B7A?style=flat-square&labelColor=374151) ![Supervision](https://img.shields.io/badge/Supervision-Zabbix-7A5B4A?style=flat-square&labelColor=374151) ![Supervision](https://img.shields.io/badge/Supervision-Wazuh-7A5B4A?style=flat-square&labelColor=374151)
 
 ## Contexte
 
