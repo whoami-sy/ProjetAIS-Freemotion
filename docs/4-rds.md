@@ -2,6 +2,9 @@
 
 [← Retour au projet](../README.md)
 
+[← Serveur de fichiers](3-serveur-fichiers.md) · [DMZ →](5-dmz.md)
+
+
 ## Introduction
 
 Le serveur **PRS-RDS-01** (`10.9.75.21`) met à disposition des utilisateurs des applications publiées en **RemoteApp** : l'application s'exécute sur le serveur, mais s'affiche sur le poste client comme une application locale. Les utilisateurs y accèdent par le portail web **RDWeb**, à l'adresse `https://PRS-RDS-01.freemotion.fr/RDWeb`.
