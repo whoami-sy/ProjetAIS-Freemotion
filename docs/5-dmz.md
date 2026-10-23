@@ -2,6 +2,9 @@
 
 [← Retour au projet](../README.md)
 
+[← Serveur RDS](4-rds.md) · [Supervision →](6-supervision.md)
+
+
 ## Introduction
 
 La **DMZ de Paris** héberge exclusivement les services destinés à être exposés : trois **serveurs web Nginx** placés derrière deux **reverse proxy HAProxy**, rendus hautement disponibles par **Keepalived**. Elle repose sur trois principes :
@@ -20,8 +23,8 @@ L'ensemble est encadré par des règles pfSense qui isolent la DMZ du LAN et du 
 
 | Machine            | Adresse IP    | Rôle                                                     |
 |--------------------|---------------|----------------------------------------------------------|
-| **PRS-FW-DMZ-VIP** | `10.9.175.1`  | Passerelle de la DMZ (VIP CARP pfSense)                  |
-| **PRS-RVP-VIP**    | `10.9.175.9`  | Adresse virtuelle partagée (VRRP), point d'entrée unique |
+| **DMZ-VIP**        | `10.9.175.1`  | Passerelle de la DMZ (VIP CARP pfSense)                  |
+| **RVP-VIP**        | `10.9.175.9`  | Adresse virtuelle partagée (VRRP), point d'entrée unique |
 | **PRS-RVP-01**     | `10.9.175.10` | Reverse proxy HAProxy + Keepalived, **MASTER**           |
 | **PRS-RVP-02**     | `10.9.175.11` | Reverse proxy HAProxy + Keepalived, **BACKUP**           |
 | **PRS-WEB-01**     | `10.9.175.20` | Serveur web Nginx (backend)                              |
@@ -44,8 +47,8 @@ L'ensemble est encadré par des règles pfSense qui isolent la DMZ du LAN et du 
                   │
    ┌──────────────┼───────────────┐
    ▼              ▼               ▼
- PRS-WEB-01   PRS-WEB-02   PRS-WEB-03
-    Nginx       Nginx        Nginx
+ PRS-WEB-01   PRS-WEB-02      PRS-WEB-03
+    Nginx       Nginx           Nginx
 ```
 
 ---
