@@ -1,6 +1,6 @@
 # Freemotion - Refonte d'un système d'information multisite
 
-> Projet annuel du Bachelor AIS · 2025 - 2026 · Projet scolaire · Déployé
+> Projet annuel du Bachelor AIS · 2025 - 2026 · Projet scolaire 
 
 ![Réseau](https://img.shields.io/badge/Réseau-pfSense-3B5B7A?style=flat-square&labelColor=374151) ![Réseau](https://img.shields.io/badge/Réseau-Suricata-3B5B7A?style=flat-square&labelColor=374151) ![Système](https://img.shields.io/badge/Système-Active_Directory-4A6B5D?style=flat-square&labelColor=374151) ![Système](https://img.shields.io/badge/Système-Windows_Server-4A6B5D?style=flat-square&labelColor=374151) ![DMZ](https://img.shields.io/badge/DMZ-Nginx-6B5B7A?style=flat-square&labelColor=374151) ![DMZ](https://img.shields.io/badge/DMZ-HAProxy-6B5B7A?style=flat-square&labelColor=374151) ![Supervision](https://img.shields.io/badge/Supervision-Zabbix-7A5B4A?style=flat-square&labelColor=374151) ![Supervision](https://img.shields.io/badge/Supervision-Wazuh-7A5B4A?style=flat-square&labelColor=374151)
 
