@@ -38,7 +38,7 @@ Deux modes d'interrogation sont utilisés :
 > [!NOTE]
 > **pfSense en mode passif :** Les agents FreeBSD présentent un comportement instable en mode actif sur les pare-feux. Le mode passif contourne ce problème sans impact sur la volumétrie ni sur la fraîcheur des données collectées.
 
-![Vue d'ensemble des hôtes supervisés](images/supervision/01-zabbix-hotes.png)
+![Vue d'ensemble des hôtes supervisés](../images/supervision/01-zabbix-hotes.png)
 
 ### Règles de pare-feu
 
@@ -53,7 +53,7 @@ Les flux de supervision entre Paris et Lyon transitent par le tunnel IPsec, sur 
 
 Un test de bascule confirme ce comportement : une fois le nœud de secours passé en MASTER, son statut redevient disponible.
 
-![Changement de statut après la bascule CARP](images/supervision/02-zabbix-bascule-carp.png)
+![Changement de statut après la bascule CARP](../images/supervision/02-zabbix-bascule-carp.png)
 
 > [!WARNING]
 > **Limite connue.** Ce comportement est inhérent à l'architecture CARP et ne relève pas d'une anomalie de configuration. Une dépendance de déclencheur fondée sur le rôle CARP du nœud actif permettrait de supprimer automatiquement cette alerte attendue : c'est une piste d'amélioration.
@@ -65,7 +65,7 @@ Les deux nœuds `PRS-RVP-01` et `PRS-RVP-02` sont supervisés avec le modèle of
 - Les **macros d'hôte** `{$HAPROXY.*}` définissent les identifiants et le schéma d'accès à cette page.
 - La page de statistiques est joignable **indépendamment sur chaque nœud**, afin que la supervision reste possible quel que soit celui qui porte la VIP.
 
-![Macros d'hôte HAProxy sur PRS-RVP-01](images/supervision/03-zabbix-macros-haproxy.png)
+![Macros d'hôte HAProxy sur PRS-RVP-01](../images/supervision/03-zabbix-macros-haproxy.png)
 
 **Test** : le service HAProxy est arrêté volontairement sur `PRS-RVP-01` :
 
@@ -75,7 +75,7 @@ sudo systemctl stop haproxy
 
 Le déclencheur « HAProxy: Service is down » remonte en quelques secondes, avec une sévérité **Moyenne**. Au redémarrage du service, le problème se résout automatiquement grâce au mode natif de Zabbix, sans fermeture manuelle.
 
-![Problème « HAProxy: Service is down » détecté](images/supervision/04-zabbix-haproxy-down.png)
+![Problème « HAProxy: Service is down » détecté](../images/supervision/04-zabbix-haproxy-down.png)
 
 ### Surveillance du tunnel VPN inter-site
 
@@ -83,11 +83,11 @@ Le tunnel IPsec Paris-Lyon est suivi par un élément dédié, **« État tunnel
 
 Un déclencheur de sévérité **Haute** signale toute perte de connectivité, avec la même résolution automatique que pour HAProxy.
 
-![Configuration du déclencheur « État tunnel IPsec »](images/supervision/05-zabbix-trigger-ipsec.png)
+![Configuration du déclencheur « État tunnel IPsec »](../images/supervision/05-zabbix-trigger-ipsec.png)
 
 **Test** : le VPN est coupé volontairement. Le problème remonte dès la chute du tunnel, puis se résout au rétablissement.
 
-![Problème « État tunnel IPsec » détecté](images/supervision/06-zabbix-ipsec-down.png)
+![Problème « État tunnel IPsec » détecté](../images/supervision/06-zabbix-ipsec-down.png)
 
 ### Supervision croisée de Wazuh
 
@@ -107,7 +107,7 @@ Le serveur `ADM-WAZUH` est installé sur le réseau Management, aux côtés de Z
 
 Les pare-feux pfSense sont exclus de cette liste, Wazuh ne publiant pas de paquet agent officiel pour FreeBSD.
 
-![Agents Wazuh actifs](images/supervision/07-wazuh-agents.png)
+![Agents Wazuh actifs](../images/supervision/07-wazuh-agents.png)
 
 ### Intégration syslog des pare-feux pfSense
 
@@ -115,7 +115,7 @@ Les pare-feux pfSense sont exclus de cette liste, Wazuh ne publiant pas de paque
 
 **Option retenue.** Les journaux sont remontés par **syslog UDP**, sans installation ni connexion d'administration supplémentaire sur le pare-feu. Chaque pfSense (`PRS-FW01/02`, `LY-FW01/02`) transmet ses événements Firewall et VPN vers `ADM-WAZUH` sur le port `514/UDP`.
 
-![Configuration de l'envoi des journaux pfSense par syslog](images/supervision/08-syslog-pfSense.png)
+![Configuration de l'envoi des journaux pfSense par syslog](../images/supervision/08-syslog-pfSense.png)
 
 Un décodeur et un jeu de règles dédiés extraient et classent les champs du journal `filterlog` (interface, action, direction, protocole) :
 
@@ -126,7 +126,7 @@ Un décodeur et un jeu de règles dédiés extraient et classent les champs du j
 
 Ces niveaux garantissent que les événements sont effectivement indexés en alerte.
 
-![Événements de blocage pfSense dans Wazuh Discover](images/supervision/09-wazuh-discover.png)
+![Événements de blocage pfSense dans Wazuh Discover](../images/supervision/09-wazuh-discover.png)
 
 ### Règles de pare-feu du flux syslog
 
@@ -152,9 +152,9 @@ La capacité de réponse active est testée en conditions réelles, depuis une m
 3. la réponse active `firewall-drop`, déclarée dans `ossec.conf`, se déclenche automatiquement : l'IP de l'attaquant est bloquée sur le pare-feu local du serveur, ce que journalise la règle **651** ;
 4. un ping depuis l'attaquant, auparavant joignable, subit désormais **100 % de perte de paquets**.
 
-![Détection de la force brute SSH et blocage automatique dans Wazuh](images/supervision/10-wazuh-bruteforce.png)
+![Détection de la force brute SSH et blocage automatique dans Wazuh](../images/supervision/10-wazuh-bruteforce.png)
 
-![Côté attaquant : Hydra sans succès, puis 100 % de perte de paquets](images/supervision/11-wazuh-attaquant.png)
+![Côté attaquant : Hydra sans succès, puis 100 % de perte de paquets](../images/supervision/11-wazuh-attaquant.png)
 
 Aucune intervention manuelle n'est nécessaire entre la détection et le blocage.
 
