@@ -81,3 +81,4 @@ Chaque brique a été validée par un test de bout en bout, preuve à l'appui :
 | 4 | [RDS](docs/4-rds.md)                              | RemoteApp, PKI interne |
 | 5 | [DMZ](docs/5-dmz.md)                              | Nginx, HAProxy, Keepalived |
 | 6 | [Supervision](docs/6-supervision.md)              | Zabbix, Wazuh, réponse active |
+| 7 | [Perspectives](docs/7-perspectives.md) | Briques non déployées, durcissement, améliorations, priorisation |
